@@ -1,7 +1,7 @@
 <?php
 
 $classmap = [
-    'Rus\Notification' => __DIR__ . '/src/',
+    'Rus\Notification' => __DIR__ . '/src/Classes',
 ];
 
 spl_autoload_register( function( string $classname ) use ( $classmap ) {

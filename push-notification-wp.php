@@ -14,12 +14,16 @@
  * Text Domain:       smart-push-notification-wp
  */
 
- const SMART_NOTIFICATION_PUBLIC_PLUGIN_PATH = __FILE__;
+ define( 'PUSH_NOTIFICATION_VERSION', '1.0.0' );
+ define( 'PUSH_NOTIFICATION_PLUGIN_PATH', __FILE__ );
+ define( 'PUSH_NOTIFICATION_PLUGIN_DIR', __DIR__ );
 
  require 'autoloader.php';
 
  function spnwp_init() {
+
     return \Rus\Notification\PluginInit::get_instance();
+
  }
 
  spnwp_init();

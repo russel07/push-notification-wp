@@ -6,17 +6,26 @@
     }
 
     class Notifications {
+
         public function __construct() {
-            $this->hooks();
+
+            $this->spnwp_hooks();
+
         }
 
-        public function hooks() {
-            add_action( 'init', [ $this, 'register' ], 0 );
+        public function spnwp_hooks() {
+
+            add_action( 'init', [ $this, 'spnwp_register' ], 0 );
+            add_action( 'admin_head', [ $this, 'spnwp_remove_add_media' ] );
+
+            add_action( 'add_meta_boxes', [ $this,'spnwp_additional_custom_fields' ] );
+
         }
 
-        public function register() {
+        public function spnwp_register() {
+
             register_post_type(
-                'push_notification',
+                'wp_push_notification',
                 [
                     'labels'        => [
                         'name'               => 'Push Notifications',
@@ -30,7 +39,7 @@
                         'not_found'          => 'No Notifications found',
                         'not_found_in_trash' => 'No Notifications found in trash',
                         'parent_item_colon'  => '',
-                        'menu_name'          => 'App Notifications',
+                        'menu_name'          => 'Push Notifications',
                     ],
                     'public'       => false,
                     'show_ui'      => true,
@@ -42,6 +51,36 @@
                     'menu_icon'    => 'dashicons-megaphone',
                 ]
             );
+
+        }
+
+        public function spnwp_remove_add_media() {
+
+            $current_screen = get_current_screen();
+
+            if ( $current_screen->post_type == 'wp_push_notification' ) {
+                remove_action( 'media_buttons', 'media_buttons' );
+            }
+
+        }
+
+        public function spnwp_additional_custom_fields() {
+
+            add_meta_box(
+                'spnwp_additional_custom_fields',
+                'Additional Fields',
+                [ $this, 'spnwp_display_additional_custom_fields' ],
+                'wp_push_notification',
+                'normal',
+                'default'
+            );
+
+        }
+
+        public function spnwp_display_additional_custom_fields() {
+            
+            require_once PUSH_NOTIFICATION_PLUGIN_DIR . '/src/Templates/additional-custom-fields.php';
+
         }
     }
 
