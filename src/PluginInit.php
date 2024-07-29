@@ -1,6 +1,10 @@
 <?php
     namespace Rus\Notification;
 
+    if ( ! defined( 'ABSPATH' ) ) {
+        exit;
+    }
+
     final class PluginInit {
         private static $instance;
 
@@ -19,6 +23,6 @@
         }
 
         public function init() {
-            
+            new Notifications();
         }
     }
