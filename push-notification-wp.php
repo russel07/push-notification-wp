@@ -17,6 +17,7 @@
  define( 'PUSH_NOTIFICATION_VERSION', '1.0.0' );
  define( 'PUSH_NOTIFICATION_PLUGIN_PATH', __FILE__ );
  define( 'PUSH_NOTIFICATION_PLUGIN_DIR', __DIR__ );
+ define( 'PUSH_NOTIFICATION_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
  require 'autoloader.php';
 
