@@ -1,5 +1,5 @@
 <?php
-    wp_nonce_field( basename( __FILE__ ), 'additional_custom_fields_nonce' );
+    wp_nonce_field( 'spnwp_save_additional_custom_fields', 'additional_custom_fields_nonce' );
 ?>
 
 <style>
@@ -56,7 +56,7 @@
         <div class="col-6 field-group">
             <label class="input-label">Call To Action</label>
             <div class="form-field">
-                <input type="text" name="cta_one_label" class="cta_label" data-id="field_1"/>
+                <input type="text" name="cta_one_label" class="cta_label" data-id="field_1" value="<?php echo isset($additional_fields['cta_one_label']) ? $additional_fields['cta_one_label'] : '';?>"/>
             </div>
             <span class="input-help">This value will be used as a button label</span>
         </div>
@@ -64,7 +64,7 @@
         <div class="col-6 field-group">
             <label class="input-label">Action Value</label>
             <div class="form-field">
-                <input type="text" name="cta_one_value" class="cta_value" id="cta_value_field_1"/>
+                <input type="text" name="cta_one_value" class="cta_value" id="cta_value_field_1" value="<?php echo isset($additional_fields['cta_one_value']) ? $additional_fields['cta_one_value'] : '';?>"/>
             </div>
             <span class="input-help">Redirect URL if clicked on the button</span>
         </div>
@@ -74,7 +74,7 @@
         <div class="col-6">
             <label class="input-label">Call To Action</label>
             <div class="form-field">
-                <input type="text" name="cta_two_label" class="cta_label" data-id="field_2"/>
+                <input type="text" name="cta_two_label" class="cta_label" data-id="field_2" value="<?php echo isset($additional_fields['cta_two_label']) ? $additional_fields['cta_two_label'] : '';?>"/>
             </div>
             <span class="input-help">This value will be used as a button label</span>
         </div>
@@ -82,7 +82,7 @@
         <div class="col-6">
             <label class="input-label">Action Value</label>
             <div class="form-field">
-                <input type="text" name="cta_two_value" class="cta_value" id="cta_value_field_2"/>
+                <input type="text" name="cta_two_value" class="cta_value" id="cta_value_field_2" value="<?php echo isset($additional_fields['cta_two_value']) ? $additional_fields['cta_two_value'] : '';?>"/>
             </div>
             <span class="input-help">Redirect URL if clicked on the button</span>
         </div>
@@ -92,7 +92,7 @@
         <div class="col-6">
             <label class="input-label">Start Date</label>
             <div class="form-field">
-                <input type="date" name="notification_start" class="notification_start"/>
+                <input type="date" name="notification_start" class="notification_start" value="<?php echo isset($additional_fields['notification_start']) ? $additional_fields['notification_start'] : '';?>"/>
             </div>
             <span class="input-help">By default notification will show once you published.</span>
         </div>
@@ -100,7 +100,7 @@
         <div class="col-6">
             <label class="input-label">End Date</label>
             <div class="form-field">
-                <input type="date" name="notification_end" class="notification_end"/>
+                <input type="date" name="notification_end" class="notification_end" value="<?php echo isset($additional_fields['notification_end']) ? $additional_fields['notification_end'] : '';?>"/>
             </div>
             <span class="input-help">If you want to disapper this after a period of time.</span>
         </div>
@@ -108,8 +108,8 @@
 </div>
 
 <script>
-    jQuery(document).ready(function($) { console.log("here");
-        $('.cta_label').keyup(function(){ console.log("here2");
+    jQuery(document).ready(function($) {
+        $('.cta_label').keyup(function(){
             let val = $(this).val();
             let id = $(this).data("id");
             let targetInput = $('#cta_value_' + id);
