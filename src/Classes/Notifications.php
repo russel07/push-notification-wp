@@ -77,8 +77,8 @@
         }
 
         public function spnwp_display_additional_custom_fields( $post ) {
-            $additional_fields = get_post_meta( $post->ID, 'spnwp_notification_meta', true );
-
+            $meta_data = get_post_meta( $post->ID, 'spnwp_notification_meta', true );
+            $additional_fields = maybe_unserialize( $meta_data );
             require_once PUSH_NOTIFICATION_PLUGIN_DIR . '/src/Templates/additional-custom-fields.php';
 
         }
@@ -114,15 +114,15 @@
             $notification_start     = sanitize_text_field($_POST['notification_start']);
             $notification_end       = sanitize_textarea_field($_POST['notification_end']);
 
-            $data = [
+            $data =  maybe_serialize( [
                 'cta_one_label'         => $cta_one_label,
                 'cta_one_value'         => $cta_one_value,
                 'cta_two_label'         => $cta_two_label,
                 'cta_two_value'         => $cta_two_value,
                 'notification_start'    => $notification_start,
                 'notification_end'      => $notification_end
-            ];
-
+            ] );
+           
             update_post_meta( $post_id, 'spnwp_notification_meta', $data );
         }
     }
