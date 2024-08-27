@@ -1,0 +1,101 @@
+.spnwp-notification-counter {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    z-index: 1000; /* Ensures it stays on top of other content */
+}
+
+.spnwp-notifications-btn {
+    cursor: pointer;
+}
+
+.spnwp-notification-icon {
+    display: block;
+    width: 50px;
+    height: 50px;
+}
+
+.spnwp-notification-counter-holder{
+    position: absolute;
+    top: -5px;
+    right: 13px;
+    display: flex;
+    cursor: pointer;
+    background-color: #D0223A;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    min-width: 19.91px;
+    min-height: 19.91px;
+    line-height: 13.04px;
+    border-radius: 33px;
+    text-align: right;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 2px;
+    animation: bounce 5s infinite linear;
+    will-change: transform;
+}
+
+.spnwp-notification-drawer{
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - var(--wp-admin--admin-bar--height, 32px));
+    width: 100%;
+    max-width: 570px;
+    position: fixed !important;
+    z-index: 1053;
+    top: 32px;
+    bottom: 0;
+    background-color: #fff;
+    overflow-x: hidden;
+    transition: .5s;
+    right: -570px;
+}
+
+.spnwp-notification-drawer.open{
+    right: 0;
+}
+
+.overlay{
+    position: fixed !important;
+    z-index: 1052;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #000;
+    border: 0;
+    box-shadow: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    opacity: .5;
+    transition: .5s;
+}
+
+.overlay.close{
+    display: none !important;
+}
+
+.spnwp-notification-holder{
+    padding: 0;
+    height: auto;
+    overflow-y: auto;
+}
+
+@keyframes bounce {
+    0% {
+        transform: translateY(-2px)
+    }
+
+    50% {
+        transform: translateY(6px)
+    }
+
+    100% {
+        transform: translateY(-2px)
+    }
+}
