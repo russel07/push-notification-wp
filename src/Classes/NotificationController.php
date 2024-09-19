@@ -55,8 +55,11 @@
                     $notifications[] = array_merge( $notification, $custom_fields );
                 }
             }
+
+            $response['active_notifications'] = $notifications;
+            $response['dismissed_notifications'][0] = $notifications[0];
         
-            return new WP_REST_Response( $notifications, 200 ); // Return notifications with 200 status
+            return new WP_REST_Response( $response, 200 ); // Return notifications with 200 status
         }
 
         private function prepare_custom_fields( $postID )

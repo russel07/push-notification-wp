@@ -70,7 +70,7 @@
                         <path style="fill:none;stroke:#000000;stroke-width:2;stroke-miterlimit:10;" d="M29.585,41.003C29.852,41.615,30,42.29,30,43c0,2.762-2.238,5-5,5s-5-2.238-5-5c0-0.663,0.129-1.296,0.364-1.875"/>
                     </svg>
                 </span>
-                <span class="spnwp-notification-counter-holder">5</span>
+                <span class="spnwp-notification-counter-holder">0</span>
             </div>
 
             <div class="spnwp-notification-overlay overlay close"></div>

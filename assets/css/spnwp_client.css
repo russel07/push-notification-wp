@@ -35,8 +35,11 @@
     justify-content: center;
     align-items: center;
     padding: 2px;
-    animation: bounce 5s infinite linear;
     will-change: transform;
+}
+
+.animate-bounce {
+    animation: bounce 5s infinite linear;
 }
 
 .spnwp-notification-drawer{
@@ -57,6 +60,91 @@
 
 .spnwp-notification-drawer.open{
     right: 0;
+}
+
+.spnwp-notification-holder .spnwp-notification-header{
+    height: 64px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    color: #fff;
+    background-color: #005ae0;
+}
+
+.snwp-notification-header .spnwp-notifications,
+.spnwp-toggle-notification a {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.spnwp-toggle-notification a:hover {
+    color: #fff;
+}
+
+.spnwp-close{
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.spnwp-notification-wrapper .spnwp-notification {
+    flex: 1;
+    font-size: 14px;
+    line-height: 22px;
+    padding: 20px;
+}
+
+.spnwp-notification-title{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.spnwp-notification-title div:first-child {
+    font-size: 22px;
+    font-weight: 600;
+    color: #141b38;
+}
+
+.spnwp-notification-title div.date{
+    font-weight: initial;
+    color: #8c8f9a;
+    font-size: 12px;
+}
+
+.spnwp-actions{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.spnwp-btn,
+.spnwp-link {
+    display: inline-block;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+.spnwp-btn-primary {
+    background-color: #005ae0;
+    color: #ffffff;
+}
+
+.spnwp-btn-primary:hover {
+    background-color: #135bc6;
+    color: #ffffff;
 }
 
 .overlay{
