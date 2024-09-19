@@ -62,7 +62,7 @@ jQuery(document).ready(function($) {
         }
 
         header_html += '<span id="spnwp-close" class="spnwp-close">X</span>';
-        //$('.spnwp-notification-header').html(''); // Clears any existing content
+        
         $('.spnwp-notification-header').html(header_html);
     }
 
@@ -86,7 +86,7 @@ jQuery(document).ready(function($) {
 
             html_body += '<a href="#" data-id="'+ notification.id +'" class="spnwp-dismiss spnwp-link spnwp-link-primary">Dismiss</a></div></div>';
         });
-        //$('.spnwp-notification-wrapper').html(''); // Clears any existing content
+
         $('.spnwp-notification-wrapper').html(html_body); // Ensure content is replaced, not appended repeatedly
     }
 
