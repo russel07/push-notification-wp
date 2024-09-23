@@ -11,7 +11,7 @@
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Update URI:        https://github.com/shovoalways
- * Text Domain:       smart-push-notification-wp
+ * Text Domain:       spnwp
  */
 
  define( 'PUSH_NOTIFICATION_VERSION', '1.0.0' );
@@ -29,4 +29,14 @@
 
  spnwp_init();
 
- ?>
+add_action( 'plugins_loaded', 'my_plugin_load_textdomain' );
+
+/**
+ * Load the plugin textdomain for translation.
+ */
+function my_plugin_load_textdomain() {
+ load_plugin_textdomain( 'spnwp', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+
+
+?>
