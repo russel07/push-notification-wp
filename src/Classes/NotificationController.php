@@ -168,13 +168,9 @@
         {
             $start_date = strtotime( $notification['start_date'] );
             $end_date   = strtotime( $notification['end_date'] );
-            $now        = time();
+            $now        = strtotime(current_time( 'mysql' ));
 
-            if( empty( $end_date ) ) {
-                return true;
-            }
-
-            if( $start_date <= $now && $now <= $end_date ) {
+            if( $start_date <= $now && ( empty( $end_date ) || ($now <= $end_date)) ) {
                 return true;
             }
 

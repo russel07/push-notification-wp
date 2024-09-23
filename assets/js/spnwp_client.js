@@ -1,136 +1,199 @@
 jQuery(document).ready(function($) {
     const apiUrl = spnwp_vars.apiUrl;
-    let active_notifications = '';
-    let dismissed_notifications = '';
-    // Toggle drawer and overlay on button click
-    $('#spnwp-notifications-btn').click(function(event) {
-        event.stopPropagation(); // Prevents event from bubbling up to the document
-        $('.spnwp-notification-drawer').toggleClass('open');
-        $('.spnwp-notification-overlay').removeClass('close');
-    });
+    const isLoggedIn = spnwp_vars.is_logged_in;
 
-    // Close drawer if clicking outside of it
-    $(document).click(function(event) {
-        if (!$(event.target).closest('.spnwp-notification-drawer').length &&
-            !$(event.target).is('#spnwp-notifications-btn')) {
-            $('.spnwp-notification-overlay').addClass('close');
-            $('.spnwp-notification-drawer').removeClass('open');
+    let activeNotifications = [];
+    let dismissedNotifications = [];
+
+    const SELECTORS = {
+        notificationBtn: '#spnwp-notifications-btn',
+        notificationDrawer: '.spnwp-notification-drawer',
+        notificationOverlay: '.spnwp-notification-overlay',
+        closeBtn: '#spnwp-close',
+        notificationHeader: '.spnwp-notification-header',
+        notificationWrapper: '.spnwp-notification-wrapper',
+        toggleDismissed: '.toggle-to-dismiss-notification',
+        toggleActive: '.toggle-to-active-notification',
+        notificationCounterHolder: '.spnwp-notification-counter-holder',
+        dismissNotification: '.spnwp-dismiss',
+    };
+
+    // Event listeners for user interactions
+    const setupEventListeners = () => {
+        $(SELECTORS.notificationBtn).on('click', toggleDrawer);
+        $(document).on('click', handleDocumentClick);
+        bindCloseButton();
+        $(document).on('click', SELECTORS.toggleDismissed, showDismissedNotifications);
+        $(document).on('click', SELECTORS.toggleActive, showActiveNotifications);
+        $(document).on('click', SELECTORS.dismissNotification, dismissNotification);
+    };
+
+    // Bind the close button event listener (call after close button is rendered)
+    const bindCloseButton = () => {
+        $(document).off('click', SELECTORS.closeBtn).on('click', SELECTORS.closeBtn, closeDrawer);
+    };
+
+    // Toggle notification drawer and overlay
+    const toggleDrawer = (event) => {
+        event.stopPropagation();
+        $(SELECTORS.notificationDrawer).toggleClass('open');
+        $(SELECTORS.notificationOverlay).removeClass('close');
+    };
+
+    // Handle click outside of the notification drawer to close it
+    const handleDocumentClick = (event) => {
+        if (!$(event.target).closest(SELECTORS.notificationDrawer).length &&
+            !$(event.target).is(SELECTORS.notificationBtn)) {
+            closeDrawer();
         }
-    });
+    };
 
-    // Close drawer if click on X (Close button)
-    $(document).on('click', '#spnwp-close', function(event) {
-        event.stopPropagation();  // Stop the event from reaching the document click handler
-        $('.spnwp-notification-overlay').addClass('close');
-        $('.spnwp-notification-drawer').removeClass('open');
-    });
+    // Close notification drawer
+    const closeDrawer = (event) => {
+        if (event) event.stopPropagation();
+        $(SELECTORS.notificationOverlay).addClass('close');
+        $(SELECTORS.notificationDrawer).removeClass('open');
+    };
 
     // Show dismissed notifications
-    $(document).on('click', '.toggle-to-dismiss-notification', function(event) {
+    const showDismissedNotifications = (event) => {
         event.stopPropagation();
-        append_header_html( 'dismissed' );
-        render_body( dismissed_notifications, 'dismissed' );
-    });
+        updateHeader('dismissed');
+        renderNotifications(dismissedNotifications, 'dismissed');
+    };
 
     // Show active notifications
-    $(document).on('click', '.toggle-to-active-notification', function(event) {
+    const showActiveNotifications = (event) => {
         event.stopPropagation();
-        append_header_html();
-        render_body(active_notifications);
-    });
+        updateHeader();
+        renderNotifications(activeNotifications);
+    };
 
-    // Dismiss clicked notification
-    $(document).on('click', '.spnwp-dismiss', function(event) {
+    // Dismiss a notification via API
+    const dismissNotification = (event) => {
         event.stopPropagation();
-        let notification_id = $(this).data("id");
-        let url = apiUrl + 'notifications';
+        const notificationId = $(event.target).data('id');
+        const url = `${apiUrl}notifications`;
+
         $.ajax({
             url: url,
-            data: {
-               'id': notification_id
-            },
             method: 'POST',
+            data: { id: notificationId },
             dataType: 'json',
-            success: function (response) {
-
+            success: function(response) {
+                activeNotifications = response.active_notifications || [];
+                dismissedNotifications = response.dismissed_notifications || [];
+                updateHeader();
+                renderNotifications(activeNotifications);
             },
-            error: function (xhr, status, error) {
-                console.error('Error fetching data:', error);
-            }
+            error: handleError
         });
-    });
+    };
 
-    // Function to update header HTML
-    function append_header_html( current_tab = 'active' ) {
-        let header_html = '<span class="spnwp-notifications">';
-        let notification_count = active_notifications.length ? active_notifications.length : 0;
-        let notification_holder = $('.spnwp-notification-counter-holder');
-        if (notification_count) {
-            notification_holder.addClass('animate-bounce');
-            notification_holder.text(notification_count);
-        } else {
-            notification_holder.removeClass('animate-bounce');
-            notification_holder.text(0);
+    // Update notification header HTML and bind the close button
+    const updateHeader = (currentTab = 'active') => {
+        let headerHtml = `<span class="spnwp-notifications">(${activeNotifications.length}) New Notifications</span>`;
+
+        if (currentTab === 'active' && dismissedNotifications.length) {
+            headerHtml += `<div class="spnwp-toggle-notification"><a class="toggle-to-dismiss-notification" href="#">Dismissed Notifications</a></div>`;
+        } else if (currentTab === 'dismissed') {
+            headerHtml += `<div class="spnwp-toggle-notification"><a class="toggle-to-active-notification" href="#">Active Notifications</a></div>`;
         }
 
-        if ( current_tab === 'active' ) {
-            header_html += '(' + notification_count + ')  New Notifications</span>';
-            if (dismissed_notifications.length) {
-                header_html += '<div class="spnwp-toggle-notification"><a class="toggle-to-dismiss-notification" href="#">Dismissed Notifications</a></div>';
-            }
+        headerHtml += `<span id="spnwp-close" class="spnwp-close">X</span>`;
+        $(SELECTORS.notificationHeader).html(headerHtml);
+
+        // Re-bind the close button click after rendering
+        bindCloseButton();
+        updateNotificationCounter();
+    };
+
+    // Update notification counter
+    const updateNotificationCounter = () => {
+        const counterHolder = $(SELECTORS.notificationCounterHolder);
+        const count = activeNotifications.length;
+
+        counterHolder.toggleClass('animate-bounce', count > 0);
+        counterHolder.text(count || 0);
+    };
+
+    // Render notifications
+    const renderNotifications = (notifications, currentTab = 'active') => {
+        let html = '';
+
+        if (notifications.length) {
+            notifications.forEach(notification => {
+                html += `
+                    <div class="spnwp-notification">
+                        <div class="spnwp-notification-title">
+                            <div class="title">${notification.title}</div>
+                            <div class="date">${getDateDifference(notification.start_date)} ago</div>
+                        </div>
+                        <div class="spnwp-notification-content">${notification.content}</div>
+                        <div class="spnwp-actions">
+                            ${notification.main ? `<a href="${notification.main.url}" class="spnwp-btn spnwp-btn-primary" target="_blank">${notification.main.text}</a>` : ''}
+                            ${notification.alt ? `<a href="${notification.alt.url}" class="spnwp-link spnwp-link-primary" target="_blank">${notification.alt.text}</a>` : ''}
+                            ${currentTab !== 'dismissed' ? `<a href="#" data-id="${notification.id}" class="spnwp-dismiss spnwp-link spnwp-link-primary">Dismiss</a>` : ''}
+                        </div>
+                    </div>`;
+            });
         } else {
-            header_html += 'Notifications</span><div class="spnwp-toggle-notification"><a class="toggle-to-active-notification" href="#">Active Notifications</a></div>';
+            html = `<div class="spnwp-notification"><h1>No ${currentTab === 'dismissed' ? 'dismissed' : 'new'} notifications</h1>`;
+            if (currentTab === 'dismissed') {
+                html += 'Go to <a class="toggle-to-active-notification text-blue" href="#">Active Notifications</a>';
+            }
         }
 
-        header_html += '<span id="spnwp-close" class="spnwp-close">X</span>';
-        
-        $('.spnwp-notification-header').html(header_html);
-    }
+        $(SELECTORS.notificationWrapper).html(html);
+    };
 
-    // Function to render the body of notifications
-    function render_body( notifications, current_tab = 'active' ) {
-        let html_body = '';
+    // Calculate time difference and return in appropriate unit
+    const getDateDifference = (startDate) => {
+        const start = new Date(startDate);
+        const now = new Date();
+        const diffMs = now - start;
 
-        $.each(notifications, function(index, notification) {
-            html_body += '<div class="spnwp-notification">';
-            html_body += '<div class="spnwp-notification-title"><div class="title">' + notification.title + '</div><div class="date">37 minutes ago</div></div>';
-            html_body += '<div class="spnwp-notification-content">' + notification.content + '</div>';
-            html_body += '<div class="spnwp-actions">';
+        const seconds = Math.floor(diffMs / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const months = Math.floor(days / 30);
 
-            if (notification.main) {
-                html_body += '<a href="' + notification.main.url + '" class="spnwp-btn spnwp-btn-primary" target="_blank">' + notification.main.text + '</a>';
-            }
+        if (months > 0) return `${months} month${months > 1 ? 's' : ''}`;
+        if (days > 0) return `${days} day${days > 1 ? 's' : ''}`;
+        if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''}`;
+        if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+        return `${seconds} second${seconds > 1 ? 's' : ''}`;
+    };
 
-            if (notification.alt) {
-                html_body += '<a href="' + notification.alt.url + '" class="spnwp-link spnwp-link-primary" target="_blank">' + notification.alt.text + '</a>';
-            }
-
-            html_body += '<a href="#" data-id="'+ notification.id +'" class="spnwp-dismiss spnwp-link spnwp-link-primary">Dismiss</a></div></div>';
-        });
-
-        $('.spnwp-notification-wrapper').html(html_body); // Ensure content is replaced, not appended repeatedly
-    }
-
-    // Fetch notifications from the API
-    function get_notification() {
-        let url = apiUrl + 'notifications';
+    // Fetch notifications from API
+    const fetchNotifications = () => {
+        const url = `${apiUrl}notifications`;
 
         $.ajax({
             url: url,
             method: 'GET',
             dataType: 'json',
-            success: function (response) {
-                active_notifications = response.active_notifications ? response.active_notifications : [];
-                dismissed_notifications = response.dismissed_notifications ? response.dismissed_notifications : [];
-                append_header_html();
-                render_body(active_notifications);
+            success: function(response) {
+                activeNotifications = response.active_notifications || [];
+                dismissedNotifications = response.dismissed_notifications || [];
+                updateHeader();
+                renderNotifications(activeNotifications);
             },
-            error: function (xhr, status, error) {
-                console.error('Error fetching data:', error);
-            }
+            error: handleError
         });
+    };
+
+    // Handle AJAX errors
+    const handleError = (xhr, status, error) => {
+        console.error('Error fetching data:', error);
+    };
+
+    // Initialize notifications if the user is logged in
+    if (isLoggedIn) {
+        fetchNotifications();
     }
 
-    // Call the function on page load
-    get_notification();
+    // Set up event listeners
+    setupEventListeners();
 });

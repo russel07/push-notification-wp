@@ -48,9 +48,11 @@
                 
                 // Localize the API URL for use in JS
                 $api_url = home_url() . '/wp-json/spnwp-push-notification/v1/';
-                wp_localize_script('spnwp-admin', 'spnwp_vars', array(
-                    'apiUrl' => $api_url
-                ));
+                $user_id = get_current_user_id();
+                wp_localize_script('spnwp-admin', 'spnwp_vars', [
+                    'apiUrl' => $api_url,
+                    'is_logged_in' => (bool)$user_id,
+                ]);
         
                 // Optionally enqueue styles
                 wp_enqueue_style('spnwp-custom-style', PUSH_NOTIFICATION_PLUGIN_URL . '/assets/css/spnwp_client.css');
@@ -61,7 +63,10 @@
             (new NotificationController)->register_routes();
         }
 
-        public function add_notification_hook_before_footer() { ?>
+        public function add_notification_hook_before_footer() {
+            $user_id = get_current_user_id();
+            if($user_id):
+            ?>
             <div class="spnwp-notification-counter">
                 <span id="spnwp-notifications-btn" class="spnwp-notifications-btn">
                     <svg class="spnwp-notification-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 50 50" width="50px" height="50px">
@@ -81,5 +86,5 @@
                     <div class="notification-footer"></div>
                 </div>
             </div>
-    <?php }
+    <?php endif; }
     }
