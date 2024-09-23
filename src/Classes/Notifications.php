@@ -114,6 +114,10 @@
             $notification_start     = sanitize_text_field($_POST['notification_start']);
             $notification_end       = sanitize_textarea_field($_POST['notification_end']);
 
+            if( empty( $notification_start ) ) {
+                $notification_start = current_time( 'mysql' );
+            }
+
             $data =  maybe_serialize( [
                 'cta_one_label'         => $cta_one_label,
                 'cta_one_value'         => $cta_one_value,

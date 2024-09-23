@@ -39,6 +39,27 @@ jQuery(document).ready(function($) {
         render_body(active_notifications);
     });
 
+    // Dismiss clicked notification
+    $(document).on('click', '.spnwp-dismiss', function(event) {
+        event.stopPropagation();
+        let notification_id = $(this).data("id");
+        let url = apiUrl + 'notifications';
+        $.ajax({
+            url: url,
+            data: {
+               'id': notification_id
+            },
+            method: 'POST',
+            dataType: 'json',
+            success: function (response) {
+
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching data:', error);
+            }
+        });
+    });
+
     // Function to update header HTML
     function append_header_html( current_tab = 'active' ) {
         let header_html = '<span class="spnwp-notifications">';

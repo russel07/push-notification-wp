@@ -23,10 +23,42 @@
                     ),
                 ) 
             );
+
+            register_rest_route(
+                static::REST_NAMESPACE,
+                '/' . static::REST_ROUTE,
+                array(
+                    array(
+                        'methods'  => WP_REST_Server::CREATABLE,
+                        'callback' => [ $this, 'spnwp_dismiss_notification' ],
+                        'permission_callback' => '__return_true',
+                        'args' => array(
+                            'id' => array(
+                                'required' => true,
+                                'validate_callback' => function($param, $request, $key) {
+                                    return is_numeric($param);
+                                },
+                                'sanitize_callback' => 'absint',
+                                'description' => 'The ID of the notification to be dismissed.',
+                            ),
+                        ),
+                    ),
+                )
+            );
+
         }
    
-        public function spnwp_get_notifications( WP_REST_Request $request ) {
-            $notifications = [];
+        public function spnwp_get_notifications() {
+            $user_id                    = get_current_user_id();
+            $dismissed_notifications    = get_option( 'spnwp_dismissed_notification_'.$user_id, [] );
+            $notifications    = [
+                'active_notifications' => [],
+                'dismissed_notifications' => []
+            ];
+
+            if ( !is_array( $dismissed_notifications ) ) {
+                $dismissed_notifications = [];
+            }
         
             // Query posts of type 'wp_push_notification'
             $data = get_posts(
@@ -52,15 +84,48 @@
                     $custom_fields = $this->prepare_custom_fields( $item->ID );
         
                     // Merge notification data with custom fields
-                    $notifications[] = array_merge( $notification, $custom_fields );
+                    $notification = array_merge( $notification, $custom_fields );
+
+                    if ( in_array( $item->ID, $dismissed_notifications ) ) {
+                        $notifications['dismissed_notifications'][] = $notification;
+                    } else if( $this->filter_active_notification( $notification ) ) {
+                        $notifications['active_notifications'][] = $notification;
+                    }
                 }
             }
-
-            $response['active_notifications'] = $notifications;
-            $response['dismissed_notifications'][0] = $notifications[0];
         
-            return new WP_REST_Response( $response, 200 ); // Return notifications with 200 status
+            return new WP_REST_Response( $notifications, 200 ); // Return notifications with 200 status
         }
+
+        public function spnwp_dismiss_notification( WP_REST_Request $request ) {
+            // Get the post ID from the request
+            $post_id = $request->get_param('id');
+
+            // Get the current logged-in user ID
+            $user_id = get_current_user_id();
+
+            // Get all dismissed notifications stored in the options table
+            // It will store data for all users in a single option
+            $dismissed_notifications = get_option( 'spnwp_dismissed_notification_'.$user_id, [] );
+
+            // If the option doesn't exist or it's not an array, initialize it
+            if ( !is_array( $dismissed_notifications ) ) {
+                $dismissed_notifications = [];
+            }
+
+            // Check if the post ID already exists in the user's dismissed array
+            if ( !in_array( $post_id, $dismissed_notifications ) ) {
+                // If the post ID doesn't exist, add it to the user's array
+                $dismissed_notifications[] = $post_id;
+
+                // Update the dismissed notifications in the options table
+                update_option( 'spnwp_dismissed_notification_'.$user_id, $dismissed_notifications );
+            }
+
+            // Return true to indicate success
+            return $this->spnwp_get_notifications();
+        }
+
 
         private function prepare_custom_fields( $postID )
         {
@@ -97,5 +162,22 @@
             }
 
             return $data;
+        }
+
+        private function filter_active_notification( $notification )
+        {
+            $start_date = strtotime( $notification['start_date'] );
+            $end_date   = strtotime( $notification['end_date'] );
+            $now        = time();
+
+            if( empty( $end_date ) ) {
+                return true;
+            }
+
+            if( $start_date <= $now && $now <= $end_date ) {
+                return true;
+            }
+
+            return false;
         }
     }
